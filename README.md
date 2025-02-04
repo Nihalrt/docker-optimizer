@@ -8,15 +8,15 @@ A smart analyzer that optimizes Dockerfiles for production readiness, reducing i
 
 ## Features ✨
 
-- 🔍 **Static Analysis** of Dockerfiles
-- 📉 **Image Size Optimization** suggestions
-- ⚡ **Build Speed Improvements**
-- 🔒 **Security Best Practices** checks
-- 📊 **Layer-by-layer Size Breakdown**
-- 🛠️ **Multi-stage Build Detection**
-- 📝 **.dockerignore Optimization**
+- **Static Analysis** of Dockerfiles
+- **Image Size Optimization** suggestions
+- **Build Speed Improvements**
+- **Security Best Practices** checks
+- **Layer-by-layer Size Breakdown**
+- **Multi-stage Build Detection**
+- **.dockerignore Optimization**
 
-## Installation 💻
+## Installation 
 
 ### Prerequisites
 - Docker Desktop/Engine ([Install Guide](https://docs.docker.com/get-docker/))
