@@ -2,7 +2,6 @@
 
 [![Python](https://img.shields.io/badge/Python-3.8%2B-blue)](https://python.org)
 [![Docker](https://img.shields.io/badge/Docker-20.10%2B-2496ED)](https://docker.com)
-[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 
 A smart analyzer that optimizes Dockerfiles for production readiness, reducing image size and build time while enforcing best practices.
 
