@@ -190,7 +190,7 @@ class DockerImageInspector:
     """Analyzes built Docker images using Docker SDK"""
 
     def __init__(self, dockerfile_dir):
-        self.client = docker.from_env()
+        # We will no longer create the client here.
         self.dockerfile_dir = str(dockerfile_dir)
         self.image = None
         self.layers = []
@@ -205,18 +205,27 @@ class DockerImageInspector:
         self._log_buffer.append(chunk)
 
     def build_image(self, tag='optimizer-temp'):
+        # --- THIS IS THE FINAL FIX ---
+        # Create the Docker client here, just before it's used.
+        # This guarantees it uses the correct settings and is immune to the environment.
+        try:
+            client = docker.DockerClient(base_url='unix://var/run/docker.sock')
+            client.ping() # Verify the connection
+        except Exception as e:
+            raise ConnectionError(f"Final attempt to connect to Docker failed. Please ensure Docker Desktop is running. Details: {e}")
+
         try:
             print("Building temporary image... (this may take a few minutes)")
-            self.image, build_logs = self.client.images.build(
+            self.image, build_logs = client.images.build(
                 path=self.dockerfile_dir,
                 dockerfile=str(Path(self.dockerfile_dir) / "Dockerfile"),
                 tag=tag,
                 rm=True,
                 forcerm=True,
-                timeout=600  # 10 minute timeout
+                timeout=600
             )
             print("Build completed successfully!")
-            self._analyze_layers()
+            self._analyze_layers(client) # Pass the client to the next method
         except APIError as e:
             print("\nBuild failed with error:")
             for chunk in self._log_buffer:
@@ -224,13 +233,17 @@ class DockerImageInspector:
                     print(chunk['error'].strip())
             raise RuntimeError(f"Docker build error: {e}")
 
-    def _analyze_layers(self):
+    def _analyze_layers(self, client): # <-- Add client here
         """Analyzes image layer metadata"""
         if self.image:
-            self.layers = self.image.history()
+            # We need to get the fresh image object from the client
+            img = client.images.get(self.image.id)
+            self.layers = img.history()
 
     def get_size_analysis(self):
         """Returns detailed size information"""
+        if not self.layers:
+             return {"total_size": 0, "layers": []}
         return {
             'total_size': sum(layer['Size'] for layer in self.layers if 'Size' in layer),
             'layers': [
@@ -242,31 +255,3 @@ class DockerImageInspector:
                 for layer in self.layers if 'Size' in layer
             ]
         }
-
-
-if __name__ == "__main__":
-    dockerfile_path = "./Dockerfile"
-    analyzer = DockerfileAnalyzer(dockerfile_path)
-    suggestions = analyzer.analyze()
-
-    print("\n=== Dockerfile Optimization Suggestions ===")
-    if suggestions:
-        for idx, suggestion in enumerate(suggestions, 1):
-            print(f"{idx}. {suggestion}")
-    else:
-        print("No significant optimization opportunities found!")
-
-    try:
-        print("\n=== Image Size Analysis ===")
-        inspector = DockerImageInspector(str(Path(dockerfile_path).parent))
-
-        # First: Validate Dockerfile
-        print("Validating Dockerfile...")
-        with open(dockerfile_path, 'r') as f:
-            print("\n".join([f"  | {line.strip()}" for line in f.readlines()]))
-
-        # Then: Build with progress
-        inspector.build_image()
-
-    except Exception as e:
-        print(f"\nImage analysis unavailable: {str(e)}")

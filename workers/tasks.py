@@ -44,7 +44,7 @@ def analyze_image_task(context_path: str): # <-- Now only accepts the path
     # --- Part 4: Combine all results ---
     final_result = {
         "ai_suggestions": ai_suggestions,
-        "size_analysis": size_analysis if not build_error else "Build failed.",
+        "size_analysis": size_analysis,
         "build_error": build_error
     }
     
