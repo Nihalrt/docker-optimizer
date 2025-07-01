@@ -1,4 +1,4 @@
-# Python Docker Analyzer
+# Python Docker Project
 
 [![Python](https://img.shields.io/badge/Python-3.9%2B-blue)](https://python.org)
 [![Flask](https://img.shields.io/badge/Flask-3.0-black)](https://flask.palletsprojects.com/)
