@@ -1,0 +1,11 @@
+.env
+.env.*
+!.env.example
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+.idea/
+.DS_Store
+temp_dockerfile_for_static_analysis

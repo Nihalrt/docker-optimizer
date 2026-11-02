@@ -1,4 +1,4 @@
-# Python Docker Project
+# Docker Optimizer
 
 [![Python](https://img.shields.io/badge/Python-3.9%2B-blue)](https://python.org)
 [![Flask](https://img.shields.io/badge/Flask-3.0-black)](https://flask.palletsprojects.com/)
@@ -43,7 +43,7 @@ Triggers a new analysis for the `Dockerfile` located in the project's root direc
 - **Method**: `POST`
 - **Example Request**:
   ```bash
-  curl -X POST [http://127.0.0.1:5000/inspect](http://127.0.0.1:5000/inspect)
+  curl -X POST http://127.0.0.1:5000/inspect
   ```
 - **Success Response**:
   ```json
@@ -60,7 +60,7 @@ Fetches the status and result of a previously submitted job.
 - **Method**: `GET`
 - **Example Request**:
   ```bash
-  curl [http://127.0.0.1:5000/results/some-unique-task-id](http://127.0.0.1:5000/results/some-unique-task-id)
+  curl http://127.0.0.1:5000/results/some-unique-task-id
   ```
 - **Success Response**:
   ```json
@@ -87,7 +87,7 @@ Fetches the status and result of a previously submitted job.
 
 1.  **Clone the repository:**
     ```bash
-    git clone [https://github.com/Nihalrt/docker-optimizer.git](https://github.com/Nihalrt/docker-optimizer.git)
+    git clone https://github.com/Nihalrt/docker-optimizer.git
     cd docker-optimizer
     ```
 
@@ -104,7 +104,7 @@ Fetches the status and result of a previously submitted job.
 
 4.  **Set up your Gemini API Key:**
     - Get an API key from [Google AI Studio](https://aistudio.google.com/app/apikey).
-    - Create a file named `.env` in the project root.
+    - Copy `.env.example` to `.env` in the project root and replace the placeholder.
     - Add your API key to the `.env` file:
       ```
       GEMINI_API_KEY="YOUR_API_KEY_HERE"
@@ -142,3 +142,26 @@ You must run three separate services in three different terminal windows.
     **Important for macOS users:** If you experience Docker connection issues from within VS Code's integrated terminal, run the Celery worker in a separate, standard macOS Terminal application.
 
 Once all three services are running, you can use the API endpoints as described above.
+
+## Security and prototype limits
+
+A real-looking Gemini credential was previously committed in `.env`. Treat it
+as exposed and revoke/rotate it in the provider console. Deleting the current
+file does not remove earlier commits or revoke the credential. No credential
+values belong in issues, examples, screenshots, or PR descriptions.
+
+`.gitignore` prevents new environment files from being added accidentally.
+`.dockerignore` keeps environment files, Git history, and local development
+files out of the Docker build context, including the demonstration Dockerfile's
+broad `ADD . /app` instruction.
+
+Run this prototype only in a trusted local environment. The API has no
+authentication; builds execute Dockerfile instructions using the worker's Docker
+daemon. Do not offer it as a public service for untrusted Dockerfiles.
+
+The checked-in Dockerfile deliberately contains poor patterns and a placeholder
+download URL for analysis; it is not a verified deployable image. The
+`/inspect` endpoint builds the repository's existing context, regardless of the
+request body. Gemini advice is advisory and does not measure an optimized build
+or prove image-size savings. Static analysis currently shares a temporary
+filename across requests; concurrent-request isolation is future work.
